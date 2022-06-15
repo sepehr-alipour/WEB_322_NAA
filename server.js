@@ -41,6 +41,11 @@ app.get("/blog", function (req, res) {
 });
 
 app.get("/posts", function (req, res) {
+  if (req.query.category) {
+    blog.getPostsByCategory(req.query.category).then((response) => {
+      res.json(response);
+    });
+  } else if (req.query.minDate) {
   blog
     .getAllPosts()
     .then((response) => {
@@ -49,6 +54,7 @@ app.get("/posts", function (req, res) {
     .catch((rejectMessage) => {
       "message:" + rejectMessage;
     });
+  }
 });
 
 app.get("/categories", function (req, res) {
@@ -107,9 +113,9 @@ app.post("/posts/add", upload.single("featureImage"), (req, res) => {
       .catch((rejectMessage) => {
         "message:" + rejectMessage;
       });
-    // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
   }
 });
+
 app.use((req, res) => {
   res.status(404).sendFile(PATH.join(__dirname, "/views/not_found.html"));
 });

@@ -41,6 +41,15 @@ module.exports.addPost = function (post) {
     post.id = posts.length + 1;
     posts.push(post);
     resolve(post);
+  });
+};
+module.exports.getPostsByCategory = function (category) {
+  return new Promise(function (resolve, reject) {
+    let filteredPosts = posts.filter((post) => post.category == category);
+    if (filteredPosts.length == 0) reject("no results returned");
+    resolve(filteredPosts);
+  });
+};
 
   });
 };
