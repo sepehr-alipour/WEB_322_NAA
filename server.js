@@ -70,14 +70,15 @@ app.get("/categories", function (req, res) {
       "message:" + rejectMessage;
     });
 });
+app.get("/posts/add", function (req, res) {
+  res.sendFile(PATH.join(__dirname, "/views/addPost.html"));
+});
 app.get("/posts/:id", function (req, res) {
   blog.getPostById(req.params.id).then((response) => {
     res.json(response);
   });
 });
-app.get("/posts/add", function (req, res) {
-  res.sendFile(PATH.join(__dirname, "/views/addPost.html"));
-});
+
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
   if (req.file) {
     let streamUpload = (req) => {
