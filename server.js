@@ -34,28 +34,38 @@ app.get("/blog", function (req, res) {
     .then((response) => {
       res.json(response);
     })
-    .catch((rejectMessage) => {
-      "message:" + rejectMessage;
+    .catch((error) => {
+      res.send({ message: error });
     });
 });
 
 app.get("/posts", function (req, res) {
   if (req.query.category) {
-    blog.getPostsByCategory(req.query.category).then((response) => {
-      res.json(response);
-    });
+    blog
+      .getPostsByCategory(req.query.category)
+      .then((response) => {
+        res.json(response);
+      })
+      .catch((error) => {
+        res.send({ message: error });
+      });
   } else if (req.query.minDate) {
-    blog.getPostsByMinDate(req.query.minDate).then((response) => {
-      res.json(response);
-    });
+    blog
+      .getPostsByMinDate(req.query.minDate)
+      .then((response) => {
+        res.json(response);
+      })
+      .catch((error) => {
+        res.send({ message: error });
+      });
   } else {
     blog
       .getAllPosts()
       .then((response) => {
         res.json(response);
       })
-      .catch((rejectMessage) => {
-        "message:" + rejectMessage;
+      .catch((error) => {
+        res.send({ message: error });
       });
   }
 });
@@ -66,17 +76,22 @@ app.get("/categories", function (req, res) {
     .then((response) => {
       res.json(response);
     })
-    .catch((rejectMessage) => {
-      "message:" + rejectMessage;
+    .catch((error) => {
+      res.send({ message: error });
     });
 });
 app.get("/posts/add", function (req, res) {
   res.sendFile(PATH.join(__dirname, "/views/addPost.html"));
 });
 app.get("/posts/:id", function (req, res) {
-  blog.getPostById(req.params.id).then((response) => {
-    res.json(response);
-  });
+  blog
+    .getPostById(req.params.id)
+    .then((response) => {
+      res.json(response);
+    })
+    .catch((error) => {
+      res.send({ message: error });
+    });
 });
 
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
@@ -106,7 +121,7 @@ app.post("/posts/add", upload.single("featureImage"), (req, res) => {
         processPost(uploaded.url);
       })
       .catch((error) => {
-        console.log(error);
+        res.send({ message: error });
       });
   } else {
     processPost("");
@@ -119,8 +134,8 @@ app.post("/posts/add", upload.single("featureImage"), (req, res) => {
       .then((response) => {
         res.redirect("/posts");
       })
-      .catch((rejectMessage) => {
-        "message:" + rejectMessage;
+      .catch((error) => {
+        res.send({ message: error });
       });
   }
 });
@@ -134,6 +149,6 @@ blog
   .then(() => {
     app.listen(PORT, onHttpStart);
   })
-  .catch((rejectMessage) => {
-    console.log(rejectMessage);
+  .catch((error) => {
+    res.send({ message: error });
   });
