@@ -46,6 +46,10 @@ app.get("/posts", function (req, res) {
       res.json(response);
     });
   } else if (req.query.minDate) {
+    blog.getPostsByMinDate(req.query.minDate).then((response) => {
+      res.json(response);
+    });
+  } else {
   blog
     .getAllPosts()
     .then((response) => {

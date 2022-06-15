@@ -50,6 +50,15 @@ module.exports.getPostsByCategory = function (category) {
     resolve(filteredPosts);
   });
 };
+module.exports.getPostsByMinDate = function (minDateStr) {
+  return new Promise(function (resolve, reject) {
+    let filteredPosts = posts.filter(
+      (post) => new Date(post.postDate) >= new Date(minDateStr)
+    );
+    if (filteredPosts.length == 0) reject("no results returned");
+    resolve(filteredPosts);
+  });
+};
 
   });
 };
