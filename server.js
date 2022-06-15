@@ -50,14 +50,14 @@ app.get("/posts", function (req, res) {
       res.json(response);
     });
   } else {
-  blog
-    .getAllPosts()
-    .then((response) => {
-      res.json(response);
-    })
-    .catch((rejectMessage) => {
-      "message:" + rejectMessage;
-    });
+    blog
+      .getAllPosts()
+      .then((response) => {
+        res.json(response);
+      })
+      .catch((rejectMessage) => {
+        "message:" + rejectMessage;
+      });
   }
 });
 
@@ -70,6 +70,11 @@ app.get("/categories", function (req, res) {
     .catch((rejectMessage) => {
       "message:" + rejectMessage;
     });
+});
+app.get("/posts/:id", function (req, res) {
+  blog.getPostById(req.params.id).then((response) => {
+    res.json(response);
+  });
 });
 app.get("/posts/add", function (req, res) {
   res.sendFile(PATH.join(__dirname, "/views/addPost.html"));

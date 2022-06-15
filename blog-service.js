@@ -60,5 +60,10 @@ module.exports.getPostsByMinDate = function (minDateStr) {
   });
 };
 
+module.exports.getPostById = function (id) {
+  return new Promise(function (resolve, reject) {
+    let filteredPosts = posts.find((post) => post.id == id);
+    if (filteredPosts.length == 0) reject("no results returned");
+    resolve(filteredPosts);
   });
 };
