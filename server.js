@@ -1,9 +1,11 @@
+require("dotenv").config();
+require("dotenv").config();
+
 var express = require("express");
 const multer = require("multer");
-const cloudinary = require('cloudinary').v2
+const cloudinary = require("cloudinary").v2;
 var blog = require("./blog-service.js");
-const streamifier = require('streamifier')
-
+const streamifier = require("streamifier");
 
 var app = express();
 var PATH = require("path");
@@ -11,10 +13,10 @@ var PORT = process.env.PORT || 8080;
 
 app.use(express.static("public"));
 cloudinary.config({
-  cloud_name: 'SenecaWeb322',
-  api_key: '893155491545128',
-  api_secret: 'SFNgepI3K8TbYBzUj_U_NB7maq0',
-  secure: true  
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+  secure: true,
 });
 const upload = multer();
 function onHttpStart() {
@@ -29,7 +31,7 @@ app.get("/about", function (req, res) {
 });
 app.get("/blog", function (req, res) {
   blog
-    .getAllPosts()
+    .getPublishedPosts()
     .then((response) => {
       res.json(response);
     })
@@ -40,7 +42,7 @@ app.get("/blog", function (req, res) {
 
 app.get("/posts", function (req, res) {
   blog
-    .getPublishedPosts()
+    .getAllPosts()
     .then((response) => {
       res.json(response);
     })
@@ -62,7 +64,52 @@ app.get("/categories", function (req, res) {
 app.get("/posts/add", function (req, res) {
   res.sendFile(PATH.join(__dirname, "/views/addPost.html"));
 });
+app.post("/posts/add", upload.single("featureImage"), (req, res) => {
+  if (req.file) {
+    let streamUpload = (req) => {
+      return new Promise((resolve, reject) => {
+        let stream = cloudinary.uploader.upload_stream((error, result) => {
+          if (result) {
+            resolve(result);
+          } else {
+            reject(error);
+          }
+        });
 
+        streamifier.createReadStream(req.file.buffer).pipe(stream);
+      });
+    };
+
+    async function upload(req) {
+      let result = await streamUpload(req);
+      console.log(result);
+      return result;
+    }
+
+    upload(req)
+      .then((uploaded) => {
+        processPost(uploaded.url);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  } else {
+    processPost("");
+  }
+
+  function processPost(imageUrl) {
+    req.body.featureImage = imageUrl;
+    blog
+      .addPost(req.body)
+      .then((response) => {
+        res.redirect("/posts");
+      })
+      .catch((rejectMessage) => {
+        "message:" + rejectMessage;
+      });
+    // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
+  }
+});
 app.use((req, res) => {
   res.status(404).sendFile(PATH.join(__dirname, "/views/not_found.html"));
 });
