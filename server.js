@@ -125,10 +125,10 @@ app.get("/categories", function (req, res) {
   blog
     .getCategories()
     .then((response) => {
-      res.json(response);
+      res.render("categories", { categories: response });
     })
     .catch((error) => {
-      res.send({ message: error });
+      res.render("categories", {message: error})
     });
 });
 app.get("/posts/add", function (req, res) {
