@@ -67,3 +67,13 @@ module.exports.getPostById = function (id) {
     resolve(filteredPosts);
   });
 };
+
+module.exports.getPublishedPostsByCategory = function (category) {
+  return new Promise(function (resolve, reject) {
+    let filteredPosts = posts.filter(
+      (post) => post.published == true && post.category == category
+    );
+    if (filteredPosts.length == 0) reject("no results returned");
+    resolve(filteredPosts);
+  });
+};
