@@ -30,7 +30,6 @@ app.get("/", function (req, res) {
   res.redirect("/about");
 });
 app.get("/about", function (req, res) {
-
   res.render("about", {
     layout: false, // do not use the default Layout (main.hbs)
   });
@@ -88,7 +87,9 @@ app.get("/categories", function (req, res) {
     });
 });
 app.get("/posts/add", function (req, res) {
-  res.sendFile(PATH.join(__dirname, "/views/addPost.html"));
+  res.render("addPost", {
+    layout: false, // do not use the default Layout (main.hbs)
+  });
 });
 app.get("/posts/:id", function (req, res) {
   blog
