@@ -1,6 +1,8 @@
 require("dotenv").config();
 
 var express = require("express");
+var exphbs = require("express-handlebars");
+
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 var blog = require("./blog-service.js");
@@ -11,6 +13,8 @@ var PATH = require("path");
 var PORT = process.env.PORT || 8080;
 
 app.use(express.static("public"));
+app.engine(".hbs", exphbs.engine({ extname: ".hbs" }));
+app.set("view engine", ".hbs");
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
@@ -26,7 +30,10 @@ app.get("/", function (req, res) {
   res.redirect("/about");
 });
 app.get("/about", function (req, res) {
-  res.sendFile(PATH.join(__dirname, "/views/about.html"));
+
+  res.render("about", {
+    layout: false, // do not use the default Layout (main.hbs)
+  });
 });
 app.get("/blog", function (req, res) {
   blog
