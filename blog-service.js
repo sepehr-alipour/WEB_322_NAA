@@ -39,6 +39,11 @@ module.exports.addPost = function (post) {
   return new Promise(function (resolve, reject) {
     post.published ? (post.published = true) : (post.published = false);
     post.id = posts.length + 1;
+    var date = new Date();
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+    post.postDate = year + "-" + month + "-" + day;
     posts.push(post);
     resolve(post);
   });
