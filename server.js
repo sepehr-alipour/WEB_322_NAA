@@ -68,9 +68,7 @@ app.get("/", function (req, res) {
   res.redirect("/blog");
 });
 app.get("/about", function (req, res) {
-  res.render("about", {
-    layout: false, // do not use the default Layout (main.hbs)
-  });
+  res.render("about", {});
 });
 app.get("/blog", async (req, res) => {
   // Declare an object to store properties for the view
@@ -115,54 +113,51 @@ app.get("/blog", async (req, res) => {
   // render the "blog" view with all of the data (viewData)
   res.render("blog", { data: viewData });
 });
-app.get('/blog/:id', async (req, res) => {
-
+app.get("/blog/:id", async (req, res) => {
   // Declare an object to store properties for the view
   let viewData = {};
 
-  try{
+  try {
+    // declare empty array to hold "post" objects
+    let posts = [];
 
-      // declare empty array to hold "post" objects
-      let posts = [];
+    // if there's a "category" query, filter the returned posts by category
+    if (req.query.category) {
+      // Obtain the published "posts" by category
+      posts = await blog.getPublishedPostsByCategory(req.query.category);
+    } else {
+      // Obtain the published "posts"
+      posts = await blog.getPublishedPosts();
+    }
 
-      // if there's a "category" query, filter the returned posts by category
-      if(req.query.category){
-          // Obtain the published "posts" by category
-          posts = await blog.getPublishedPostsByCategory(req.query.category);
-      }else{
-          // Obtain the published "posts"
-          posts = await blog.getPublishedPosts();
-      }
+    // sort the published posts by postDate
+    posts.sort((a, b) => new Date(b.postDate) - new Date(a.postDate));
 
-      // sort the published posts by postDate
-      posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
-
-      // store the "posts" and "post" data in the viewData object (to be passed to the view)
-      viewData.posts = posts;
-
-  }catch(err){
-      viewData.message = "no results";
+    // store the "posts" and "post" data in the viewData object (to be passed to the view)
+    viewData.posts = posts;
+  } catch (err) {
+    viewData.message = "no results";
   }
 
-  try{
-      // Obtain the post by "id"
-      viewData.post = await blog.getPostById(req.params.id);
-  }catch(err){
-      viewData.message = "no results"; 
+  try {
+    // Obtain the post by "id"
+    viewData.post = await blog.getPostById(req.params.id);
+  } catch (err) {
+    viewData.message = "no results";
   }
 
-  try{
-      // Obtain the full list of "categories"
-      let categories = await blog.getCategories();
+  try {
+    // Obtain the full list of "categories"
+    let categories = await blog.getCategories();
 
-      // store the "categories" data in the viewData object (to be passed to the view)
-      viewData.categories = categories;
-  }catch(err){
-      viewData.categoriesMessage = "no results"
+    // store the "categories" data in the viewData object (to be passed to the view)
+    viewData.categories = categories;
+  } catch (err) {
+    viewData.categoriesMessage = "no results";
   }
 
   // render the "blog" view with all of the data (viewData)
-  res.render("blog", {data: viewData})
+  res.render("blog", { data: viewData });
 });
 app.get("/posts", function (req, res) {
   if (req.query.category) {
@@ -170,37 +165,27 @@ app.get("/posts", function (req, res) {
       .getPostsByCategory(req.query.category)
       .then((response) => {
         res.render("posts", { posts: response });
-        //res.json(response);
       })
       .catch((error) => {
         res.render("posts", { message: error });
-        //res.send({ message: error });
       });
   } else if (req.query.minDate) {
     blog
       .getPostsByMinDate(req.query.minDate)
       .then((response) => {
         res.render("posts", { posts: response });
-
-        //  res.json(response);
       })
       .catch((error) => {
         res.render("posts", { message: response });
-
-        //  res.send({ message: error });
       });
   } else {
     blog
       .getAllPosts()
       .then((response) => {
         res.render("posts", { posts: response });
-
-        //res.json(response);
       })
       .catch((error) => {
         res.render("posts", { message: error });
-
-        //  res.send({ message: error });
       });
   }
 });
@@ -216,20 +201,9 @@ app.get("/categories", function (req, res) {
     });
 });
 app.get("/posts/add", function (req, res) {
-  res.render("addPost", {
-    layout: false, // do not use the default Layout (main.hbs)
-  });
+  res.render("addPost", {});
 });
-app.get("/posts/:id", function (req, res) {
-  blog
-    .getPostById(req.params.id)
-    .then((response) => {
-      res.json(response);
-    })
-    .catch((error) => {
-      res.send({ message: error });
-    });
-});
+
 
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
   if (req.file) {
@@ -278,7 +252,7 @@ app.post("/posts/add", upload.single("featureImage"), (req, res) => {
 });
 
 app.use((req, res) => {
-  res.status(404).sendFile(PATH.join(__dirname, "/views/not_found.html"));
+  res.status(404).render("not_found", {});
 });
 
 blog
