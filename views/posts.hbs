@@ -1,7 +1,5 @@
 <div class="row">
-  <div class="col-md-12 text-center">
-    <strong>{{message}}</strong>
-  </div>
+  
   <div class="col-md-12">
     <h2>Posts</h2>
     <hr />
@@ -34,4 +32,10 @@
       </div>
     </p>
   </div>
+  {{#unless data.posts}}
+
+    <div class="col-md-12 text-center">
+      <strong>{{message}}</strong>
+    </div>
+  {{/unless}}
 </div>
