@@ -80,13 +80,21 @@ module.exports.addPost = function (postData) {
         postData[key] = null;
       }
     }
-    //postData.postDate = new Date();
-    Post.create(postData)
+    postData.postDate = new Date();
+
+    Post.create({
+      body: postData.body,
+      title: postData.title,
+      postDate: postData.postDate,
+      featureImage: postData.featureImage,
+      published: postData.published,
+      category: postData.category,
+    })
       .then((post) => {
         resolve(post);
       })
       .catch((err) => {
-        reject("unable to create post");
+        reject(err);
       });
   });
 };
@@ -98,7 +106,7 @@ module.exports.addCategory = function (categoryData) {
         categoryData[key] = null;
       }
     }
-    Category.create({category: categoryData})
+    Category.create({ category: categoryData })
       .then((category) => {
         resolve(category);
       })
