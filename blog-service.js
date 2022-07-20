@@ -90,6 +90,47 @@ module.exports.addPost = function (postData) {
       });
   });
 };
+
+module.exports.addCategory = function (categoryData) {
+  return new Promise(function (resolve, reject) {
+    for (var key in categoryData) {
+      if (categoryData[key] === "") {
+        categoryData[key] = null;
+      }
+    }
+    Category.create(categoryData)
+      .then((category) => {
+        resolve(category);
+      })
+      .catch((err) => {
+        reject("unable to create category");
+      });
+  });
+};
+
+module.exports.deleteCategoryById = function (id) {
+  return new Promise(function (resolve, reject) {
+    Category.destroy({ where: { id: id } })
+      .then((category) => {
+        resolve(category);
+      })
+      .catch((err) => {
+        reject("no results returned");
+      });
+  });
+};
+
+module.exports.deletePostById = function (id) {
+  return new Promise(function (resolve, reject) {
+    Post.destroy({ where: { id: id } })
+      .then((post) => {
+        resolve(post);
+      })
+      .catch((err) => {
+        reject("no results returned");
+      });
+  });
+};
 module.exports.getPostsByCategory = function (category) {
   return new Promise(function (resolve, reject) {
     Post.findAll({ include: [Category], where: { category: category } })
