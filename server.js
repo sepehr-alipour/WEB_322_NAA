@@ -217,7 +217,14 @@ app.get("/categories", function (req, res) {
     });
 });
 app.get("/posts/add", function (req, res) {
-  res.render("addPost", {});
+  blog
+    .getCategories()
+    .then((response) => {
+      res.render("addPost", { categories: response });
+    })
+    .catch((error) => {
+      res.render("addPost", { categories: {} });
+    });
 });
 
 app.get("/categories/add", function (req, res) {
@@ -244,20 +251,19 @@ app.get("/posts/delete/:id", function (req, res) {
       res.redirect("/posts");
     })
     .catch((error) => {
-      res
-        .status(500)
-        .render("Unable to Remove Post / Post not found)", {});
+      res.status(500).render("Unable to Remove Post / Post not found)", {});
     });
 });
 
 app.post("/categories/add", (req, res) => {
+
   blog
     .addCategory(req.body)
     .then((response) => {
       res.redirect("/categories");
     })
     .catch((error) => {
-      res.send({ message: error });
+      res.status(500).render("Unable to Add Category", {});
     });
 });
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
