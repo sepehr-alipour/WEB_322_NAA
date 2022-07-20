@@ -1,7 +1,8 @@
 <div class="row">
 
   <div class="col-md-12">
-    <h2>Categories</h2>
+    <h2>Categories
+      <a href="/categories/add" class="btn btn-success pull-right">Add Category</a></h2>
     <hr />
     <p>
       <div class="table-responsive">
@@ -27,8 +28,8 @@
   </div>
   {{#unless data.categories}}
 
-  <div class="col-md-12 text-center">
-    <strong>{{message}}</strong>
-  </div>
-  {{/unless }}
+    <div class="col-md-12 text-center">
+      <strong>{{message}}</strong>
+    </div>
+  {{/unless}}
 </div>

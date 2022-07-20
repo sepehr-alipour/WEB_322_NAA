@@ -1,17 +1,3 @@
-/*********************************************************************************
-*  WEB322 – Assignment 4
-*  I declare that this assignment is my own work in accordance with Seneca Academic Policy.  
-*  No part of this assignment has been copied manually or electronically from any other source
-*  (including web sites) or distributed to other students.
-* 
-*  Name: Sepehr Alipour Student ID: 107296212 Date: 06/15/2022
-*
-*  Heroku Web App URL: https://tranquil-hamlet-98141.herokuapp.com
-*
-*  GitHub Repository URL: https://github.com/sepehr-alipour/web322-app
-*
-********************************************************************************/ 
-
 require("dotenv").config();
 
 var express = require("express");
@@ -178,7 +164,11 @@ app.get("/posts", function (req, res) {
     blog
       .getPostsByCategory(req.query.category)
       .then((response) => {
-        res.render("posts", { posts: response });
+        if (response.length > 0) {
+          res.render("posts", { posts: response });
+        } else {
+          res.render("posts", { message: "no results" });
+        }
       })
       .catch((error) => {
         res.render("posts", { message: error });
@@ -187,7 +177,11 @@ app.get("/posts", function (req, res) {
     blog
       .getPostsByMinDate(req.query.minDate)
       .then((response) => {
-        res.render("posts", { posts: response });
+        if (response.length > 0) {
+          res.render("posts", { posts: response });
+        } else {
+          res.render("posts", { message: "no results" });
+        }
       })
       .catch((error) => {
         res.render("posts", { message: response });
@@ -196,7 +190,11 @@ app.get("/posts", function (req, res) {
     blog
       .getAllPosts()
       .then((response) => {
-        res.render("posts", { posts: response });
+        if (response.length > 0) {
+          res.render("posts", { posts: response });
+        } else {
+          res.render("posts", { message: "no results" });
+        }
       })
       .catch((error) => {
         res.render("posts", { message: error });
@@ -208,7 +206,11 @@ app.get("/categories", function (req, res) {
   blog
     .getCategories()
     .then((response) => {
-      res.render("categories", { categories: response });
+      if (response.length > 0) {
+        res.render("categories", { categories: response });
+      } else {
+        res.render("categories", { message: "no results" });
+      }
     })
     .catch((error) => {
       res.render("categories", { message: error });
@@ -217,7 +219,6 @@ app.get("/categories", function (req, res) {
 app.get("/posts/add", function (req, res) {
   res.render("addPost", {});
 });
-
 
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
   if (req.file) {
