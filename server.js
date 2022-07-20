@@ -226,7 +226,7 @@ app.get("/categories/add", function (req, res) {
 
 app.get("/categories/delete/:id", function (req, res) {
   blog
-    .deleteCategory(req.params.id)
+    .deleteCategoryById(req.params.id)
     .then((response) => {
       res.redirect("/categories");
     })
