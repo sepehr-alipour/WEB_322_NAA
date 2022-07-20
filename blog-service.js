@@ -94,7 +94,7 @@ module.exports.addPost = function (postData) {
         resolve(post);
       })
       .catch((err) => {
-        reject(err);
+        reject("unable to create post");
       });
   });
 };
