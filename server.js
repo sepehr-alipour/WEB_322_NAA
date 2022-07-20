@@ -220,6 +220,46 @@ app.get("/posts/add", function (req, res) {
   res.render("addPost", {});
 });
 
+app.get("/categories/add", function (req, res) {
+  res.render("addCategory", {});
+});
+
+app.get("/categories/delete/:id", function (req, res) {
+  blog
+    .deleteCategory(req.params.id)
+    .then((response) => {
+      res.redirect("/categories");
+    })
+    .catch((error) => {
+      res
+        .status(500)
+        .render("Unable to Remove Category / Category not found)", {});
+    });
+});
+
+app.get("/posts/delete/:id", function (req, res) {
+  blog
+    .deletePost(req.params.id)
+    .then((response) => {
+      res.redirect("/posts");
+    })
+    .catch((error) => {
+      res
+        .status(500)
+        .render("Unable to Remove Post / Post not found)", {});
+    });
+});
+
+app.post("/categories/add", (req, res) => {
+  blog
+    .addCategory(req.body)
+    .then((response) => {
+      res.redirect("/categories");
+    })
+    .catch((error) => {
+      res.send({ message: error });
+    });
+});
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
   if (req.file) {
     let streamUpload = (req) => {
