@@ -13,6 +13,7 @@ var PATH = require("path");
 var PORT = process.env.PORT || 8080;
 
 app.use(express.static("public"));
+app.use(express.urlencoded({extended: true}));
 app.engine(
   ".hbs",
   exphbs.engine({
@@ -206,6 +207,8 @@ app.get("/categories", function (req, res) {
   blog
     .getCategories()
     .then((response) => {
+      console.log(response);
+
       if (response.length > 0) {
         res.render("categories", { categories: response });
       } else {
@@ -246,7 +249,7 @@ app.get("/categories/delete/:id", function (req, res) {
 
 app.get("/posts/delete/:id", function (req, res) {
   blog
-    .deletePost(req.params.id)
+    .deletePostById(req.params.id)
     .then((response) => {
       res.redirect("/posts");
     })
@@ -256,15 +259,15 @@ app.get("/posts/delete/:id", function (req, res) {
 });
 
 app.post("/categories/add", (req, res) => {
-
   blog
-    .addCategory(req.body)
+    .addCategory(req.body.category)
     .then((response) => {
       res.redirect("/categories");
     })
     .catch((error) => {
       res.status(500).render("Unable to Add Category", {});
     });
+ 
 });
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
   if (req.file) {

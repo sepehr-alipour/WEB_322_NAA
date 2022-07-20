@@ -57,7 +57,7 @@ module.exports.getPublishedPosts = function () {
         resolve(posts);
       })
       .catch((err) => {
-        reject("no results returned");
+        reject("no results");
       });
   });
 };
@@ -68,7 +68,7 @@ module.exports.getCategories = function (category) {
         resolve(categories);
       })
       .catch((err) => {
-        reject("no results returned");
+        reject("no results");
       });
   });
 };
@@ -80,7 +80,7 @@ module.exports.addPost = function (postData) {
         postData[key] = null;
       }
     }
-    postData.postDate = new Date();
+    //postData.postDate = new Date();
     Post.create(postData)
       .then((post) => {
         resolve(post);
@@ -98,7 +98,7 @@ module.exports.addCategory = function (categoryData) {
         categoryData[key] = null;
       }
     }
-    Category.create(categoryData)
+    Category.create({category: categoryData})
       .then((category) => {
         resolve(category);
       })
