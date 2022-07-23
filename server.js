@@ -13,7 +13,7 @@ var PATH = require("path");
 var PORT = process.env.PORT || 8080;
 
 app.use(express.static("public"));
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.engine(
   ".hbs",
   exphbs.engine({
@@ -41,6 +41,12 @@ app.engine(
       },
       safeHTML: function (context) {
         return stripJs(context);
+      },
+      formatDate: function (dateObj) {
+        let year = dateObj.getFullYear();
+        let month = (dateObj.getMonth() + 1).toString();
+        let day = dateObj.getDate().toString();
+        return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
       },
     },
   })
@@ -267,7 +273,6 @@ app.post("/categories/add", (req, res) => {
     .catch((error) => {
       res.status(500).render("Unable to Add Category", {});
     });
- 
 });
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
   if (req.file) {
