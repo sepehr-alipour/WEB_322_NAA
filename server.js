@@ -21,6 +21,7 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 var blog = require("./blog-service.js");
 const streamifier = require("streamifier");
+let authData = require("./auth-service.js");
 
 var app = express();
 var PATH = require("path");
