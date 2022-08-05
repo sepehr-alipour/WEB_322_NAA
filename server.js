@@ -31,7 +31,7 @@ var PORT = process.env.PORT || 8080;
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(
-  sessions({
+  clientSessions({
     cookieName: "session",
     secret: "assignment6",
     duration: 10 * 60 * 1000,
