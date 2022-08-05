@@ -22,6 +22,8 @@ const cloudinary = require("cloudinary").v2;
 var blog = require("./blog-service.js");
 const streamifier = require("streamifier");
 let authData = require("./auth-service.js");
+let clientSessions = require("client-sessions");
+
 
 var app = express();
 var PATH = require("path");
@@ -29,6 +31,20 @@ var PORT = process.env.PORT || 8080;
 
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  sessions({
+    cookieName: "session", 
+    secret: "assignment6", 
+    duration: 10 * 60 * 1000, 
+    activeDuration: 50000 * 60, 
+  })
+);
+
+app.use(function (req, res, next) {
+  res.locals.session = req.session;
+  next();
+});
+
 app.engine(
   ".hbs",
   exphbs.engine({
@@ -85,6 +101,11 @@ app.use(function (req, res, next) {
   app.locals.viewingCategory = req.query.category;
   next();
 });
+
+function ensureLogin(req, res, next) {
+  if (!req.session.user) res.redirect("/login");
+  else next();
+}
 
 app.get("/", function (req, res) {
   res.redirect("/blog");
@@ -181,7 +202,7 @@ app.get("/blog/:id", async (req, res) => {
   // render the "blog" view with all of the data (viewData)
   res.render("blog", { data: viewData });
 });
-app.get("/posts", function (req, res) {
+app.get("/posts", ensureLogin,function (req, res) {
   if (req.query.category) {
     blog
       .getPostsByCategory(req.query.category)
@@ -224,7 +245,7 @@ app.get("/posts", function (req, res) {
   }
 });
 
-app.get("/categories", function (req, res) {
+app.get("/categories",ensureLogin, function (req, res) {
   blog
     .getCategories()
     .then((response) => {
@@ -240,7 +261,7 @@ app.get("/categories", function (req, res) {
       res.render("categories", { message: error });
     });
 });
-app.get("/posts/add", function (req, res) {
+app.get("/posts/add",ensureLogin, function (req, res) {
   blog
     .getCategories()
     .then((response) => {
@@ -251,11 +272,11 @@ app.get("/posts/add", function (req, res) {
     });
 });
 
-app.get("/categories/add", function (req, res) {
+app.get("/categories/add",ensureLogin, function (req, res) {
   res.render("addCategory", {});
 });
 
-app.get("/categories/delete/:id", function (req, res) {
+app.get("/categories/delete/:id", ensureLogin,function (req, res) {
   blog
     .deleteCategoryById(req.params.id)
     .then((response) => {
@@ -268,7 +289,7 @@ app.get("/categories/delete/:id", function (req, res) {
     });
 });
 
-app.get("/posts/delete/:id", function (req, res) {
+app.get("/posts/delete/:id", ensureLogin,function (req, res) {
   blog
     .deletePostById(req.params.id)
     .then((response) => {
@@ -279,7 +300,7 @@ app.get("/posts/delete/:id", function (req, res) {
     });
 });
 
-app.post("/categories/add", (req, res) => {
+app.post("/categories/add",ensureLogin, (req, res) => {
   blog
     .addCategory(req.body.category)
     .then((response) => {
@@ -289,7 +310,7 @@ app.post("/categories/add", (req, res) => {
       res.status(500).render("Unable to Add Category", {});
     });
 });
-app.post("/posts/add", upload.single("featureImage"), (req, res) => {
+app.post("/posts/add",ensureLogin, upload.single("featureImage"), (req, res) => {
   if (req.file) {
     let streamUpload = (req) => {
       return new Promise((resolve, reject) => {
