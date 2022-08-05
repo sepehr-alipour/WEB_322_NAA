@@ -24,7 +24,6 @@ const streamifier = require("streamifier");
 let authData = require("./auth-service.js");
 let clientSessions = require("client-sessions");
 
-
 var app = express();
 var PATH = require("path");
 var PORT = process.env.PORT || 8080;
@@ -33,10 +32,10 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   sessions({
-    cookieName: "session", 
-    secret: "assignment6", 
-    duration: 10 * 60 * 1000, 
-    activeDuration: 50000 * 60, 
+    cookieName: "session",
+    secret: "assignment6",
+    duration: 10 * 60 * 1000,
+    activeDuration: 50000 * 60,
   })
 );
 
@@ -202,7 +201,7 @@ app.get("/blog/:id", async (req, res) => {
   // render the "blog" view with all of the data (viewData)
   res.render("blog", { data: viewData });
 });
-app.get("/posts", ensureLogin,function (req, res) {
+app.get("/posts", ensureLogin, function (req, res) {
   if (req.query.category) {
     blog
       .getPostsByCategory(req.query.category)
@@ -245,7 +244,7 @@ app.get("/posts", ensureLogin,function (req, res) {
   }
 });
 
-app.get("/categories",ensureLogin, function (req, res) {
+app.get("/categories", ensureLogin, function (req, res) {
   blog
     .getCategories()
     .then((response) => {
@@ -261,7 +260,7 @@ app.get("/categories",ensureLogin, function (req, res) {
       res.render("categories", { message: error });
     });
 });
-app.get("/posts/add",ensureLogin, function (req, res) {
+app.get("/posts/add", ensureLogin, function (req, res) {
   blog
     .getCategories()
     .then((response) => {
@@ -272,11 +271,11 @@ app.get("/posts/add",ensureLogin, function (req, res) {
     });
 });
 
-app.get("/categories/add",ensureLogin, function (req, res) {
+app.get("/categories/add", ensureLogin, function (req, res) {
   res.render("addCategory", {});
 });
 
-app.get("/categories/delete/:id", ensureLogin,function (req, res) {
+app.get("/categories/delete/:id", ensureLogin, function (req, res) {
   blog
     .deleteCategoryById(req.params.id)
     .then((response) => {
@@ -289,7 +288,7 @@ app.get("/categories/delete/:id", ensureLogin,function (req, res) {
     });
 });
 
-app.get("/posts/delete/:id", ensureLogin,function (req, res) {
+app.get("/posts/delete/:id", ensureLogin, function (req, res) {
   blog
     .deletePostById(req.params.id)
     .then((response) => {
@@ -300,7 +299,7 @@ app.get("/posts/delete/:id", ensureLogin,function (req, res) {
     });
 });
 
-app.post("/categories/add",ensureLogin, (req, res) => {
+app.post("/categories/add", ensureLogin, (req, res) => {
   blog
     .addCategory(req.body.category)
     .then((response) => {
@@ -310,50 +309,112 @@ app.post("/categories/add",ensureLogin, (req, res) => {
       res.status(500).render("Unable to Add Category", {});
     });
 });
-app.post("/posts/add",ensureLogin, upload.single("featureImage"), (req, res) => {
-  if (req.file) {
-    let streamUpload = (req) => {
-      return new Promise((resolve, reject) => {
-        let stream = cloudinary.uploader.upload_stream((error, result) => {
-          if (result) {
-            resolve(result);
-          } else {
-            reject(error);
-          }
+app.post(
+  "/posts/add",
+  ensureLogin,
+  upload.single("featureImage"),
+  (req, res) => {
+    if (req.file) {
+      let streamUpload = (req) => {
+        return new Promise((resolve, reject) => {
+          let stream = cloudinary.uploader.upload_stream((error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          });
+
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
         });
+      };
 
-        streamifier.createReadStream(req.file.buffer).pipe(stream);
-      });
-    };
+      async function upload(req) {
+        let result = await streamUpload(req);
+        console.log(result);
+        return result;
+      }
 
-    async function upload(req) {
-      let result = await streamUpload(req);
-      console.log(result);
-      return result;
+      upload(req)
+        .then((uploaded) => {
+          processPost(uploaded.url);
+        })
+        .catch((error) => {
+          res.send({ message: error });
+        });
+    } else {
+      processPost("");
     }
 
-    upload(req)
-      .then((uploaded) => {
-        processPost(uploaded.url);
-      })
-      .catch((error) => {
-        res.send({ message: error });
-      });
-  } else {
-    processPost("");
+    function processPost(imageUrl) {
+      req.body.featureImage = imageUrl;
+      blog
+        .addPost(req.body)
+        .then((response) => {
+          res.redirect("/posts");
+        })
+        .catch((error) => {
+          res.send({ message: error });
+        });
+    }
   }
+);
+app.get("/login", function (request, response) {
+  response.render("login", {
+    defaultLayout: false,
+  });
+});
 
-  function processPost(imageUrl) {
-    req.body.featureImage = imageUrl;
-    blog
-      .addPost(req.body)
-      .then((response) => {
-        res.redirect("/posts");
-      })
-      .catch((error) => {
-        res.send({ message: error });
+app.get("/register", function (request, response) {
+  response.render("register", {
+    defaultLayout: false,
+  });
+});
+
+app.post("/register", function (request, response) {
+  auth
+    .registerUser(request.body)
+    .then(function () {
+      response.render("register", {
+        successMessage: "User created",
       });
-  }
+    })
+    .catch(function (error) {
+      response.render("register", {
+        errorMessage: error,
+        userName: request.body.userName,
+      });
+    });
+});
+
+app.post("/login", function (request, response) {
+  request.body.userAgent = request.get("User-Agent");
+  auth
+    .checkUser(request.body)
+    .then((user) => {
+      request.session.user = {
+        userName: user.userName,
+        email: user.email,
+        loginHistory: user.loginHistory,
+      };
+
+      response.redirect("/employees");
+    })
+    .catch(function (err) {
+      response.render("login", {
+        errorMessage: err,
+        userName: request.body.userName,
+      });
+    });
+});
+
+app.get("/userHistory", ensureLogin, function (request, response) {
+  response.render("userHistory");
+});
+
+app.get("/logout", function (request, response) {
+  request.session.reset();
+  response.redirect("/login");
 });
 
 app.use((req, res) => {
