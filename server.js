@@ -372,7 +372,7 @@ app.get("/register", function (request, response) {
 });
 
 app.post("/register", function (request, response) {
-  auth
+  authData
     .registerUser(request.body)
     .then(function () {
       response.render("register", {
@@ -389,7 +389,7 @@ app.post("/register", function (request, response) {
 
 app.post("/login", function (request, response) {
   request.body.userAgent = request.get("User-Agent");
-  auth
+  authData
     .checkUser(request.body)
     .then((user) => {
       request.session.user = {
@@ -398,7 +398,7 @@ app.post("/login", function (request, response) {
         loginHistory: user.loginHistory,
       };
 
-      response.redirect("/employees");
+      response.redirect("/posts");
     })
     .catch(function (err) {
       response.render("login", {

@@ -1,5 +1,7 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+const bcrypt = require("bcryptjs");
+
 var userSchema = new Schema({
   userName: String,
   password: String,
@@ -16,7 +18,7 @@ let User;
 module.exports.initialize = function () {
   return new Promise(function (resolve, reject) {
     let db = mongoose.createConnection(
-      "mongodb+srv://salipour2:xEA9F7pNR1T3Naf4@senecaweb.wlwqrtc.mongodb.net/?retryWrites=true&w=majority"
+      "mongodb+srv://salipour2:xEA9F7pNR1T3Naf4@senecaweb.wlwqrtc.mongodb.net/web322_week8?retryWrites=true&w=majority"
     );
 
     db.on("error", (err) => {
@@ -36,7 +38,7 @@ module.exports.registerUser = function (userData) {
     }
 
     bcrypt
-      .genSalt(10) // Generate a "salt" using 10 rounds
+      .genSalt(10)
       .then((salt) => bcrypt.hash(userData.password, salt))
       .then((hash) => {
         userData.password = hash;

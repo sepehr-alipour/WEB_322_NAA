@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/sepehr-alipour/WEB_322_NAA#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "client-sessions": "^0.8.0",
     "cloudinary": "^1.30.0",
     "dotenv": "^16.0.1",
