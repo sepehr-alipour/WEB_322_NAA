@@ -72,13 +72,13 @@ module.exports.checkUser = function (userData) {
           if (same) {
             try {
               users[0].loginHistory.push({
-                dateTime: new Date().toString(),
+                dataTime: new Date(),
                 userAgent: userData.userAgent,
               });
               User.update(
                 { userName: users[0].userName },
                 { $set: { loginHistory: users[0].loginHistory } }
-              );
+              ).exec();
               resolve(users[0]);
             } catch (e) {
               reject("There was an error verifying the user: ${e}");
